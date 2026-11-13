@@ -47,18 +47,70 @@ td,th{padding:6px 8px;border-bottom:1px solid var(--line);text-align:left}
 .up{color:var(--earth);font-weight:600}
 #toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--green);color:var(--on);padding:10px 18px;border-radius:10px;display:none}
 footer{text-align:center;color:var(--muted);font-size:.8rem;padding:20px}
+.hero{display:grid;grid-template-columns:1.1fr .9fr;gap:28px;align-items:center;padding:28px 0}
+@media(max-width:720px){.hero{grid-template-columns:1fr}}
+.hero h1{font-size:clamp(2rem,5vw,3.2rem);line-height:1.1;margin:.3em 0;color:var(--green)}
+.hero p{color:var(--muted);font-size:1.1rem}
+.pill{background:var(--soft);color:var(--green);border-radius:999px;padding:4px 14px;font-size:.85rem;font-weight:600}
+.artw{position:relative}
+.art{border-radius:20px;overflow:hidden;aspect-ratio:3/2;border:1px solid var(--line);box-shadow:0 10px 30px rgba(0,0,0,.15);transform:rotate(1.5deg)}
+.art svg{width:100%;height:100%;display:block}
+.badge{position:absolute;left:8px;bottom:16px;background:var(--surface);border:1px solid var(--line);padding:8px 14px;border-radius:12px;font-weight:700;color:var(--green);box-shadow:0 6px 18px rgba(0,0,0,.15)}
+.feat{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:12px 0 28px}
+@media(max-width:900px){.feat{grid-template-columns:1fr 1fr}}
+@media(max-width:520px){.feat{grid-template-columns:1fr}}
+.feat a{display:block;text-decoration:none;color:inherit;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;transition:transform .15s,border-color .15s}
+.feat a:hover{transform:translateY(-3px);border-color:var(--green)}
+.feat b{display:block;color:var(--green);margin:6px 0 2px}
+.feat span{color:var(--muted);font-size:.9rem}
+.ico{font-size:1.8rem}
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+@media(max-width:720px){.steps{grid-template-columns:1fr}}
+.steps div{background:var(--soft);border-radius:14px;padding:16px}
+.steps b{color:var(--earth)}
+.band{margin:28px 0 8px;background:var(--green);color:var(--on);border-radius:16px;padding:26px;text-align:center}
+.band .btn{background:var(--on);color:var(--green)}
+a.btn{display:inline-block;text-decoration:none}
 </style>
 </head>
 <body>
 <header>
-  <div class="logo">🌿 GeoGuard<small>Satellite land-use explorer</small></div>
+  <div class="logo" id="logo" style="cursor:pointer">🌿 GeoGuard<small>Satellite land-use explorer</small></div>
   <nav>
+    <button data-v="home">Home</button>
     <button data-v="classify">Classify &amp; Report</button>
     <button data-v="explore">Search &amp; Download</button>
     <button data-v="compare">Compare Dates</button>
   </nav>
 </header>
 <main>
+
+<section id="home">
+  <div class="hero">
+    <div>
+      <span class="pill">Satellite land-use insight</span>
+      <h1>See how the land is changing, from space.</h1>
+      <p>GeoGuard reads satellite images, tells you what the land is used for, and explains it in plain language.</p>
+      <a class="btn" href="#classify">Launch GeoGuard</a>
+      <a class="btn alt" href="#explore">Explore locations</a>
+    </div>
+    <div class="artw"><div class="art" id="heroArt"></div><div class="badge">🌲 Forest · 93%</div></div>
+  </div>
+  <h2>What you can do</h2>
+  <div class="feat">
+    <a href="#classify"><span class="ico">🛰️</span><b>Classify land cover</b><span>Upload an image and learn if it shows forest, farmland, water, or city.</span></a>
+    <a href="#classify"><span class="ico">📝</span><b>Get a report</b><span>A short AI-written summary of what the land use means.</span></a>
+    <a href="#explore"><span class="ico">🔎</span><b>Search and download</b><span>Find any place, view its imagery, and save the image.</span></a>
+    <a href="#compare"><span class="ico">🕰️</span><b>Compare dates</b><span>See what changed at one location between two dates.</span></a>
+  </div>
+  <h2>How it works</h2>
+  <div class="steps">
+    <div><b>1. Add an image</b><br>Upload your own or search for a place.</div>
+    <div><b>2. Analyze</b><br>A neural network trained on EuroSAT labels the land cover.</div>
+    <div><b>3. Understand</b><br>Read the report or compare with an earlier date.</div>
+  </div>
+  <div class="band"><h2 style="color:inherit;margin:0 0 8px">Ready to look at the land?</h2><a class="btn" href="#classify">Launch GeoGuard</a></div>
+</section>
 
 <section id="classify">
   <h2>Classify &amp; Report</h2>
@@ -132,7 +184,7 @@ footer{text-align:center;color:var(--muted);font-size:.8rem;padding:20px}
 </section>
 
 </main>
-<footer>GeoGuard UI prototype · CSE 327 · all data is simulated</footer>
+<footer>GeoGuard UI prototype · all data is simulated</footer>
 <div id="toast"></div>
 
 <script>
@@ -143,12 +195,15 @@ function tile(p,seed){let s=seed,r=()=>(s=(s*9301+49297)%233280)/233280,o='';
  return `<svg viewBox="0 0 300 200" preserveAspectRatio="xMidYMid slice">${o}</svg>`}
 function toast(t){const e=$('toast');e.textContent=t;e.style.display='block';setTimeout(()=>e.style.display='none',1800)}
 // Navigation
-const views=['classify','explore','compare'];
-function route(){const v=views.includes(location.hash.slice(1))?location.hash.slice(1):'classify';
+const views=['home','classify','explore','compare'];
+function route(){const v=views.includes(location.hash.slice(1))?location.hash.slice(1):'home';
  views.forEach(n=>{$(n).classList.toggle('on',n===v)});
  document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('on',b.dataset.v===v))}
 document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{location.hash=b.dataset.v});
 addEventListener('hashchange',route);route();
+addEventListener('hashchange',()=>scrollTo(0,0));
+$('logo').onclick=()=>{location.hash='home'};
+$('heroArt').innerHTML=tile(PAL.green,19);
 // Classify
 let hasImg=false;
 function setImg(html){$('upBox').innerHTML=html;$('upBox').classList.add('has');hasImg=true;$('classifyBtn').disabled=false;$('resBox').classList.add('hide');$('resEmpty').classList.remove('hide')}
